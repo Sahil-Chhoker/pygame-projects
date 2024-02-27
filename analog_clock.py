@@ -50,7 +50,13 @@ def main():
         for number in range(1, 13):
             numbers(str(number), 80, polar_to_cartesian(clock_radius - 80, number * 30))
 
-    
+        for number in range(0, 360, 6):
+            if number % 5:
+                pygame.draw.line(screen, WHITE, polar_to_cartesian(clock_radius - 15, number), polar_to_cartesian(clock_radius - 30, number), 2)
+            else:
+                pygame.draw.line(screen, WHITE, polar_to_cartesian(clock_radius - 15, number), polar_to_cartesian(clock_radius - 30, number), 6)
+
+
         # hours arrow
         r = 250
         theta = (hour + minute / 60 + second / 3600) * (360 / 12)
