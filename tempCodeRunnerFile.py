@@ -50,21 +50,9 @@ def main():
         for number in range(1, 13):
             numbers(str(number), 80, polar_to_cartesian(clock_radius - 80, number * 30))
 
-    
-        # hours arrow
-        r = 250
-        theta = (hour + minute / 60 + second / 3600) * (360 / 12)
-        pygame.draw.line(screen, WHITE, center, polar_to_cartesian(r, theta), 14)
-
-
-        # minutes arrow
-        r = 280
-        theta = (minute + second / 60) * (360 / 60)
-        pygame.draw.line(screen, WHITE, center, polar_to_cartesian(r, theta), 10)
-
         # seconds arrow
         r = 340
-        theta = second * (360/60)
+        theta = second * (360/120)
         pygame.draw.line(screen, RED, center, polar_to_cartesian(r, theta), 4)
 
         pygame.display.update()
