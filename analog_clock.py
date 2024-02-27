@@ -19,6 +19,7 @@ FPS = 60
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
+GREY = (128, 128, 128)
 
 # logic to draw numbers
 def numbers(number, size, position):
@@ -94,7 +95,7 @@ def main():
         # hours arrow
         r = 250
         theta = (hour + minute / 60 + second / 3600) * (360 / 12)
-        pygame.draw.line(screen, WHITE, center, polar_to_cartesian(r, theta), 14)
+        pygame.draw.line(screen, GREY, center, polar_to_cartesian(r, theta), 14)
 
         # minutes arrow
         r = 280
