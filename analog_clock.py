@@ -14,3 +14,22 @@ FPS = 60
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
+
+
+def main():
+    run = True
+    while run:
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+        screen.fill(BLACK)
+
+        pygame.display.update()
+
+        clock.tick(FPS)
+
+    pygame.quit()
+
+main()
