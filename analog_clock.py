@@ -19,7 +19,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
-def number(number, size, position):
+def numbers(number, size, position):
     font = pygame.font.SysFont("Arial", size, True, False)
     text = font.render(number, True, WHITE)
     text_rect = text.get_rect(center=(position))
@@ -41,6 +41,9 @@ def main():
         screen.fill(BLACK)
         pygame.draw.circle(screen, WHITE, center, clock_radius - 15, 8)
         pygame.draw.circle(screen, WHITE, center, 15)
+
+        for number in range(1, 13):
+            numbers(str(number), 80, polar_to_cartesian(clock_radius - 80, number * 30))
 
         pygame.display.update()
 
