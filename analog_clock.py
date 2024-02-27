@@ -10,3 +10,7 @@ pygame.display.set_caption("Analog Clock")
 clock = pygame.time.Clock()
 FPS = 60
 
+# colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
