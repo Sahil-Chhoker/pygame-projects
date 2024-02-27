@@ -43,9 +43,33 @@ def main():
         minute = current_time.minute
         hour = current_time.hour
 
+        day = current_time.day
+        month = current_time.month
+        year = current_time.year
+        weekday = current_time.today().isoweekday()
+        calander = current_time.today().isocalendar()
+
+        weekdays_abbr = {1: "Mo", 2: "Tu", 3: "Wed", 4: "Th", 5: "Fri", 6: "Sat", 7: "Sun"}
+        weekday_abbr = weekdays_abbr.get(weekday)
+
+        months_abbr = {1: "JAN", 2: "FEB", 3: "MAR", 4: "APR", 5: "MAY", 6: "JUN", 7: "JUL", 8: "AUG", 9: "SEP", 10: "OCT", 11: "NOV", 12: "DEC"}
+        month_abbr = months_abbr.get(month)
+
         screen.fill(BLACK)
         pygame.draw.circle(screen, WHITE, center, clock_radius - 15, 8)
         pygame.draw.circle(screen, WHITE, center, 15)
+
+        pygame.draw.rect(screen, WHITE, [WIDTH / 2 - 260, HEIGHT / 2 - 30, 80, 60], 1)
+        pygame.draw.rect(screen, WHITE, [WIDTH / 2 - 180, HEIGHT / 2 - 30, 80, 60], 1)
+        pygame.draw.rect(screen, WHITE, [WIDTH / 2 + 100, HEIGHT / 2 - 30, 80, 60], 1)
+        pygame.draw.rect(screen, WHITE, [WIDTH / 2 + 180, HEIGHT / 2 - 30, 80, 60], 1)
+        pygame.draw.rect(screen, WHITE, [WIDTH / 2 - 50, HEIGHT / 2 - 30 + 160, 100, 60], 1)
+
+        numbers(str(weekday_abbr), 40, (WIDTH/2 - 220, HEIGHT / 2))
+        numbers(str(calander[1]), 40, (WIDTH/2 - 140, HEIGHT / 2))
+        numbers(str(month_abbr), 40, (WIDTH/2 + 140, HEIGHT / 2))
+        numbers(str(day), 40, (WIDTH/2 + 220, HEIGHT / 2))
+        numbers(str(year), 40, (WIDTH/2 , HEIGHT / 2 + 160))
 
         for number in range(1, 13):
             numbers(str(number), 80, polar_to_cartesian(clock_radius - 80, number * 30))
