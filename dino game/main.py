@@ -18,6 +18,7 @@ FONT = pygame.font.SysFont("comicsans", 16)
 
 class Dino(pygame.sprite.Sprite):
 	def __init__(self, pos_x, pos_y):
+		self.is_animating = False
 		super().__init__()
 		self.sprites = []
 		self.sprites.append(pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/dino_2.png'))
@@ -27,6 +28,20 @@ class Dino(pygame.sprite.Sprite):
 
 		self.rect = self.image.get_rect()
 		self.rect.topleft = [pos_x, pos_y]
+	
+	def animate(self):
+		self.is_animating = True
+
+	def update(self, speed):
+		if self.is_animating == True:
+			self.current_sprite += speed
+
+			# animation is finished
+			if self.current_sprite >= len(self.sprites):
+				self.current_sprite = 0
+				self.is_animating = False
+
+			self.image = self.sprites[int(self.current_sprite)]
 
 def main():
 	run = True
@@ -44,8 +59,11 @@ def main():
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				run = False
+		if event.type == pygame.KEYDOWN:
+			dino.animate()
 
 		moving_sprites.draw(WIN)
+		moving_sprites.update(0.2)
 		pygame.display.update()
 
 	pygame.quit()
