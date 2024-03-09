@@ -28,6 +28,10 @@ cacti_sprites = [
 cloud_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/cloud.png')
 game_over_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/game_over.png')
 dead_dino_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/hurt_dino.png')
+bird_sprites = [
+    pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/bird_0.png'),
+    pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/bird_1.png')
+]
 
 
 class Dino(pygame.sprite.Sprite):
@@ -98,6 +102,8 @@ class Obstacle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(bottomleft=(pos_x, pos_y))
         self.speed = speed
 
+        self.rect.width -= 15
+
     def update(self):
         if self.is_updating:
             self.rect.x -= self.speed
@@ -140,10 +146,34 @@ class GameManager:
         self.obstacle_spawned = False
         self.dino.rect.topleft = (100, 100)
         self.dino.collided_with_obstacle = False
-        # self.moving_sprites.draw(WIN)
         self.obstacles.empty()
         self.cloud_list.empty()
     
+
+class Bird(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y):
+        super().__init__()
+        self.is_moving = True
+        self.is_animating = False
+        self.current_sprite = 0
+        self.image = bird_sprites[self.current_sprite]
+        self.rect = self.image.get_rect(topleft=(pos_x, pos_y))
+
+    def animate(self):
+        self.is_animating = True
+
+    def update(self, dx):
+        if self.is_animating:
+            self.current_sprite += dx
+            if self.current_sprite >= len(bird_sprites):
+                self.current_sprite = 0
+            self.image = bird_sprites[int(self.current_sprite)]
+
+    def move(self, speed):
+        self.speed = speed
+        if self.is_moving:
+            self.rect.x -= self.speed
+
 
 def main():
     run = True
@@ -153,6 +183,7 @@ def main():
     obstacles = pygame.sprite.Group()
     cloud_list = pygame.sprite.Group()
     dino = Dino(100, 100)
+    birds = pygame.sprite.Group()
     ground = Ground()
 
     # variables
@@ -166,9 +197,15 @@ def main():
 
     game_manager = GameManager(dino, obstacles, cloud_list, moving_sprites, obstacle_spawned)
 
+    BIRD_EVENT = pygame.USEREVENT + 1
+    pygame.time.set_timer(BIRD_EVENT, 15000)
+
     while run:
         clock.tick(60)
         WIN.fill(WHITE)
+
+        new_bird = Bird(WIDTH, 460)
+        new_bird.update(dx)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -180,11 +217,14 @@ def main():
                 mouse_pos = pygame.mouse.get_pos()
                 if game_manager.restart_button_clicked(mouse_pos):
                     game_manager.reset_game_state()
+            elif event.type == BIRD_EVENT: 
+                new_bird.animate()
+                birds.add(new_bird)
 
         # Draw ground
         ground.draw(WIN)
 
-        # Update and draw sprites
+        # Update and draw sprites and gameover logic
         if dino.collided_with_obstacle:
             WIN.blit(dead_dino_sprite, dino.rect)
             game_manager.show_game_over(WIN)
@@ -216,6 +256,12 @@ def main():
                 cloud_list.add(cloud)
         cloud_list.update()
         cloud_list.draw(WIN)
+
+        # Bird logic
+        for bird in birds:
+            bird.move(game_speed * 1.5)
+            bird.update(dx)
+        birds.draw(WIN)
 
         # Die logic
         dino.die(obstacles, cloud_list)
