@@ -27,6 +27,7 @@ cacti_sprites = [
 ]
 cloud_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/cloud.png')
 game_over_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/game_over.png')
+dead_dino_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/hurt_dino.png')
 
 
 class Dino(pygame.sprite.Sprite):
@@ -184,9 +185,13 @@ def main():
         ground.draw(WIN)
 
         # Update and draw sprites
-        moving_sprites.update(dx)
-        moving_sprites.draw(WIN)
-        dino.animate()
+        if dino.collided_with_obstacle:
+            WIN.blit(dead_dino_sprite, dino.rect)
+            game_manager.show_game_over(WIN)
+        else:
+            moving_sprites.update(dx)
+            dino.animate()
+            moving_sprites.draw(WIN)
 
         # Obstacle logic
         if not game_manager.obstacle_spawned:
@@ -214,10 +219,6 @@ def main():
 
         # Die logic
         dino.die(obstacles, cloud_list)
-
-        # Show game over screen
-        if dino.collided_with_obstacle:
-            game_manager.show_game_over(WIN)
 
         # Update the screen
         pygame.display.update()
