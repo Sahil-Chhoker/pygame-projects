@@ -124,8 +124,7 @@ def main():
     # variables
     jump_force = 15
     dx = 0.2
-    obstacle_speed = 6
-    cloud_speed = 6
+    game_speed = 10
 
     moving_sprites.add(dino)
 
@@ -152,7 +151,7 @@ def main():
 
         # Obstacle logic
         if not obstacle_spawned:
-            obstacle = Obstacle(WIDTH, HEIGHT - ground.height + 20, obstacle_speed)
+            obstacle = Obstacle(WIDTH, HEIGHT - ground.height + 20, game_speed)
             obstacles.add(obstacle)
             obstacle_spawned = True
         obstacles.update()
@@ -163,7 +162,7 @@ def main():
 
         # Cloud logic
         if not dino.collided_with_obstacle:
-            cloud = Clouds(WIDTH, random.randint(40, 100), cloud_speed)
+            cloud = Clouds(WIDTH, random.randint(40, 100), game_speed)
             if random.randint(0, 100) < 3:
                 cloud_list.add(cloud)
         cloud_list.update()
