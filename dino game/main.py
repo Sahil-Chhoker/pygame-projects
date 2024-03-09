@@ -116,7 +116,13 @@ class Clouds(pygame.sprite.Sprite):
 
 
 class GameManager:
-    def __init__(self):
+    def __init__(self, dino, obstacles, cloud_list, moving_sprites, obstacle_spawned):
+        self.dino = dino
+        self.obstacles = obstacles
+        self.cloud_list = cloud_list
+        self.moving_sprites = moving_sprites
+        self.obstacle_spawned = obstacle_spawned
+
         self.game_over_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/game_over.png')
         self.restart_button_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/restart.png')
         self.restart_button_rect = self.restart_button_sprite.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 50))
@@ -129,8 +135,13 @@ class GameManager:
         return self.restart_button_rect.collidepoint(mouse_pos)
     
     def reset_game_state(self):
-        # Reset game state here
-        pass
+        self.game_over = False
+        self.obstacle_spawned = False
+        self.dino.rect.topleft = (100, 100)
+        self.dino.collided_with_obstacle = False
+        # self.moving_sprites.draw(WIN)
+        self.obstacles.empty()
+        self.cloud_list.empty()
     
 
 def main():
@@ -142,7 +153,6 @@ def main():
     cloud_list = pygame.sprite.Group()
     dino = Dino(100, 100)
     ground = Ground()
-    game_manager = GameManager()
 
     # variables
     jump_force = 15
@@ -152,6 +162,8 @@ def main():
     moving_sprites.add(dino)
 
     obstacle_spawned = False
+
+    game_manager = GameManager(dino, obstacles, cloud_list, moving_sprites, obstacle_spawned)
 
     while run:
         clock.tick(60)
@@ -177,15 +189,15 @@ def main():
         dino.animate()
 
         # Obstacle logic
-        if not obstacle_spawned:
+        if not game_manager.obstacle_spawned:
             obstacle = Obstacle(WIDTH, HEIGHT - ground.height + 20, game_speed)
             obstacles.add(obstacle)
-            obstacle_spawned = True
+            game_manager.obstacle_spawned = True
         obstacles.update()
         obstacles.draw(WIN)
         if obstacle.rect.x + 50 < 0:
             obstacles.remove(obstacle)
-            obstacle_spawned = False
+            game_manager.obstacle_spawned = False
 
         # Debug
         # for obstacle in obstacles:
