@@ -36,13 +36,26 @@ class Dino(pygame.sprite.Sprite):
         self.image = dino_sprites[self.current_sprite]
         self.rect = self.image.get_rect(topleft=(pos_x, pos_y))
         self.vel_y = 0
-
-    def animate(self):
-        self.is_animating = True
+        self.collided = False
+        self.collided_with_obstacle = False
 
     def jump(self, jump_force):
         if self.rect.bottom == HEIGHT - 36:
             self.vel_y = -jump_force
+
+    def die(self, obstacles, cloud_list):
+        if not self.collided_with_obstacle:
+            for obstacle in obstacles:
+                collide = self.rect.colliderect(obstacle.rect)
+                if collide:
+                    self.collided_with_obstacle = True
+                    obstacle.is_updating = False
+                    for cloud in cloud_list:
+                        cloud.is_updating = False
+                    break
+
+    def animate(self):
+        self.is_animating = True
 
     def update(self, speed):
         if self.is_animating:
@@ -75,23 +88,27 @@ class Ground:
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y, speed):
         super().__init__()
+        self.is_updating = True
         self.image = random.choice(cacti_sprites)
         self.rect = self.image.get_rect(bottomleft=(pos_x, pos_y))
         self.speed = speed
 
     def update(self):
-        self.rect.x -= self.speed
+        if self.is_updating:
+            self.rect.x -= self.speed
 
 
 class Clouds(pygame.sprite.Sprite):
     def __init__(self, posx, posy, speed):
         super().__init__()
+        self.is_updating = True
         self.image = cloud_sprite
         self.rect = self.image.get_rect(bottomleft=(posx, posy))
         self.speed = speed
 
     def update(self):
-        self.rect.x -= self.speed
+        if self.is_updating:
+            self.rect.x -= self.speed
 
 
 def main():
@@ -103,6 +120,12 @@ def main():
     cloud_list = pygame.sprite.Group()
     dino = Dino(100, 100)
     ground = Ground()
+
+    # variables
+    jump_force = 15
+    dx = 0.2
+    obstacle_speed = 6
+    cloud_speed = 6
 
     moving_sprites.add(dino)
 
@@ -117,19 +140,19 @@ def main():
                 run = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    dino.jump(jump_force=15)
+                    dino.jump(jump_force)
 
         # Draw ground
         ground.draw(WIN)
 
         # Update and draw sprites
-        moving_sprites.update(0.2)
+        moving_sprites.update(dx)
         moving_sprites.draw(WIN)
         dino.animate()
 
         # Obstacle logic
         if not obstacle_spawned:
-            obstacle = Obstacle(WIDTH, HEIGHT - ground.height + 20, 6)
+            obstacle = Obstacle(WIDTH, HEIGHT - ground.height + 20, obstacle_speed)
             obstacles.add(obstacle)
             obstacle_spawned = True
         obstacles.update()
@@ -139,11 +162,15 @@ def main():
             obstacle_spawned = False
 
         # Cloud logic
-        if random.randint(0, 100) < 3:
-            cloud = Clouds(WIDTH, random.randint(40, 100), 6)
-            cloud_list.add(cloud)
+        if not dino.collided_with_obstacle:
+            cloud = Clouds(WIDTH, random.randint(40, 100), cloud_speed)
+            if random.randint(0, 100) < 3:
+                cloud_list.add(cloud)
         cloud_list.update()
         cloud_list.draw(WIN)
+
+        # Die logic
+        dino.die(obstacles, cloud_list)
 
         # Update the screen
         pygame.display.update()
