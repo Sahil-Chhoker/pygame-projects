@@ -1,6 +1,8 @@
 import pygame
 import random
 
+from pygame.sprite import Group
+
 pygame.init()
 
 # screen stats
@@ -80,12 +82,23 @@ class Obstacle(pygame.sprite.Sprite):
     def update(self):
         self.rect.x -= self.speed
 
+class Clouds(pygame.sprite.Sprite):
+    def __init__(self, posx, posy, speed):
+        super().__init__()
+        self.image = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/cloud.png')
+        self.rect = self.image.get_rect(bottomleft=(posx, posy))
+        self.speed = speed
+
+    def update(self):
+        self.rect.x -= self.speed
+
 def main():
     run = True
     clock = pygame.time.Clock()
 
     moving_sprites = pygame.sprite.Group()
     obstacles = pygame.sprite.Group()
+    cloud_list = pygame.sprite.Group()
     dino = Dino(100, 100)
     ground = Ground()
 
@@ -110,6 +123,7 @@ def main():
         
         ground.draw(WIN)
 
+        # obstacle logic
         if not obstacle_spawned: 
             obstacle = Obstacle(WIDTH, HEIGHT - ground.height + 20, 6)
             obstacles.add(obstacle)
@@ -122,6 +136,17 @@ def main():
             obstacles.remove(obstacle)
             obstacle_spawned = False
 
+        # cloud logic
+        cloud = Clouds(WIDTH, random.randint(40, 100), 6)
+        if random.randint(0, 100) < 3:
+            cloud_list.add(cloud)
+        if cloud.rect.x + 20 < 0:
+            cloud_list.remove(cloud)
+
+        cloud_list.draw(WIN)
+        cloud_list.update()
+
+        # update the screen
         pygame.display.update()
 
     pygame.quit()
