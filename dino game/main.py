@@ -26,6 +26,7 @@ cacti_sprites = [
     pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/cacti_group_1.png')
 ]
 cloud_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/cloud.png')
+game_over_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/game_over.png')
 
 
 class Dino(pygame.sprite.Sprite):
@@ -38,6 +39,9 @@ class Dino(pygame.sprite.Sprite):
         self.vel_y = 0
         self.collided = False
         self.collided_with_obstacle = False
+
+        self.rect.width -= 10
+        self.rect.height -= 10
 
     def jump(self, jump_force):
         if self.rect.bottom == HEIGHT - 36:
@@ -111,6 +115,24 @@ class Clouds(pygame.sprite.Sprite):
             self.rect.x -= self.speed
 
 
+class GameManager:
+    def __init__(self):
+        self.game_over_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/game_over.png')
+        self.restart_button_sprite = pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/restart.png')
+        self.restart_button_rect = self.restart_button_sprite.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 50))
+
+    def show_game_over(self, window):
+        window.blit(self.game_over_sprite, (WIDTH // 2 - self.game_over_sprite.get_width() // 2, HEIGHT // 2 - self.game_over_sprite.get_height() // 2))
+        window.blit(self.restart_button_sprite, self.restart_button_rect)
+
+    def restart_button_clicked(self, mouse_pos):
+        return self.restart_button_rect.collidepoint(mouse_pos)
+    
+    def reset_game_state(self):
+        # Reset game state here
+        pass
+    
+
 def main():
     run = True
     clock = pygame.time.Clock()
@@ -120,6 +142,7 @@ def main():
     cloud_list = pygame.sprite.Group()
     dino = Dino(100, 100)
     ground = Ground()
+    game_manager = GameManager()
 
     # variables
     jump_force = 15
@@ -140,6 +163,10 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     dino.jump(jump_force)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if game_manager.restart_button_clicked(mouse_pos):
+                    game_manager.reset_game_state()
 
         # Draw ground
         ground.draw(WIN)
@@ -160,6 +187,11 @@ def main():
             obstacles.remove(obstacle)
             obstacle_spawned = False
 
+        # Debug
+        # for obstacle in obstacles:
+        #     pygame.draw.rect(WIN, "red", obstacle.rect, 2)
+        # pygame.draw.rect(WIN, "green", dino.rect, 2)
+
         # Cloud logic
         if not dino.collided_with_obstacle:
             cloud = Clouds(WIDTH, random.randint(40, 100), game_speed)
@@ -170,6 +202,10 @@ def main():
 
         # Die logic
         dino.die(obstacles, cloud_list)
+
+        # Show game over screen
+        if dino.collided_with_obstacle:
+            game_manager.show_game_over(WIN)
 
         # Update the screen
         pygame.display.update()
