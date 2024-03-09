@@ -1,11 +1,10 @@
 import pygame
-import math
+import random
 
-from pygame.sprite import Group
 pygame.init()
 
 # screen stats
-WIDTH, HEIGHT =  800, 800
+WIDTH, HEIGHT =  800, 600
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Wierd Dino")
 
@@ -15,8 +14,6 @@ YELLOW = (255, 255, 0)
 BLUE = (100, 149, 237)
 RED = (188, 39, 50)
 DARK_GREY = (80, 78, 81)
-
-FONT = pygame.font.SysFont("comicsans", 16)
 
 class Dino(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -30,9 +27,13 @@ class Dino(pygame.sprite.Sprite):
         self.image = self.sprites[self.current_sprite]
         self.rect = self.image.get_rect(topleft=(pos_x, pos_y))
         self.vel_y = 0  
-        
+
     def animate(self):
         self.is_animating = True
+
+    def jump(self, jump_force):
+        if self.rect.bottom == HEIGHT - 36:
+            self.vel_y = -jump_force
 
     def update(self, speed):
         if self.is_animating:
@@ -43,33 +44,54 @@ class Dino(pygame.sprite.Sprite):
             self.image = self.sprites[int(self.current_sprite)]
 
         # Apply gravity
-        self.vel_y += 0.5
+        self.vel_y += 0.7
         self.rect.y += self.vel_y
 
         if self.rect.bottom >= HEIGHT - 36:
             self.rect.bottom = HEIGHT - 36
             self.vel_y = 0
-            
-class DrawWorld(pygame.sprite.Sprite):
+
+class Ground():        
     def __init__(self):
         super().__init__()
-        self.ground = pygame.Surface((WIDTH, 50))
-        self.ground.fill(DARK_GREY)
-        self.rect = self.ground.get_rect()
-        self.rect.bottom = HEIGHT
-        
+        self.width = 100000
+        self.height = 50
+        self.rect = pygame.Rect(0, HEIGHT - self.height, self.width, self.height)
+        self.ground_color = DARK_GREY
+
     def draw(self, surface):
-        surface.blit(self.ground, self.rect)
-        
+        pygame.draw.rect(surface, self.ground_color, self.rect, 4)
+
+class Obstacle(pygame.sprite.Sprite):
+    def __init__(self, pos_x, pos_y, speed):
+        super().__init__()
+        self.cacti_sprites = [
+            pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/cactus_0.png'),
+            pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/cactus_1.png'),
+            pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/cactus_2.png'),
+            pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/big_cactus_1.png'),
+            pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/cacti_group_0.png'),
+            pygame.image.load('C:/MASTER FOLDER/pygame-projects/dino game/assets/dino/cacti_group_1.png')
+        ]
+        self.image = random.choice(self.cacti_sprites)
+        self.rect = self.image.get_rect(bottomleft=(pos_x, pos_y))
+        self.speed = speed
+
+    def update(self):
+        self.rect.x -= self.speed
+
 def main():
     run = True
     clock = pygame.time.Clock()
 
     moving_sprites = pygame.sprite.Group()
+    obstacles = pygame.sprite.Group()
     dino = Dino(100, 100)
-    world = DrawWorld()
+    ground = Ground()
 
     moving_sprites.add(dino)
+
+    obstacle_spawned = False 
 
     while run:
         clock.tick(60)
@@ -78,11 +100,27 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    dino.jump(jump_force=15)
 
+        moving_sprites.draw(WIN)
         moving_sprites.update(0.2)
         dino.animate()
-        moving_sprites.draw(WIN)
-        world.draw(WIN)
+        
+        ground.draw(WIN)
+
+        if not obstacle_spawned: 
+            obstacle = Obstacle(WIDTH, HEIGHT - ground.height + 20, 6)
+            obstacles.add(obstacle)
+            obstacle_spawned = True
+
+        obstacles.draw(WIN)
+        obstacles.update()
+
+        if obstacle.rect.x + 50 < 0:
+            obstacles.remove(obstacle)
+            obstacle_spawned = False
 
         pygame.display.update()
 
@@ -90,7 +128,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-if __name__ == "__main__":
-	main()
